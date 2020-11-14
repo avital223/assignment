@@ -17,24 +17,22 @@ float avg(float *x, int size) {
 
 // returns the variance of X and Y
 float var(float *x, int size) {
-    float *x2 = new float[size];
+    float x2[size];
     for (int i = 0; i < size; i++) {
         *(x2 + i) = pow(*(x + i), 2);
     }
     float var = avg(x2, size) - pow(avg(x, size), 2);
-    delete[]x2;
     return var;
 }
 
 // returns the covariance of X and Y
 float cov(float *x, float *y, int size) {
     float avX = avg(x, size), avY = avg(y, size);
-    float *arr = new float[size];
+    float arr[size];
     for (int i = 0; i < size; i++) {
         *(arr + i) = (*(x + i) - avX) * (*(y + i) - avY);
     }
     float average = avg(arr, size);
-    delete[]arr;
     return average;
 }
 
