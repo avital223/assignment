@@ -33,7 +33,7 @@ void TimeSeries::getTableFromFile(const char *CSVfileName) {
 }
 
 vector<string> TimeSeries::setKeyValues(const string &myText) {
-    vector<string> keyValues = SplitString::splitString(myText, ',');
+    this->keyValues = SplitString::splitString(myText, ',');
     vector<string>::iterator it;
     for (it = keyValues.begin(); it != keyValues.end(); it++) {
         table.insert(pair<string, vector<float>>(*it, vector<float>()));
@@ -51,9 +51,16 @@ void TimeSeries::setValuesInTable(const string &myText) {
     }
 }
 
-const vector<string> TimeSeries::getKeyValues() { return keyValues; }
+const vector<string> &TimeSeries::getKeyValues() const { return keyValues; }
 
-
+const vector<float> &TimeSeries::getValuesFromKey(const string &keyValue) const {
+    std::vector<string>::const_iterator iter;
+    for (iter = this->keyValues.begin(); iter != this->keyValues.end(); iter++) {
+        if (!keyValue.compare(*iter))
+            return this->table.at(keyValue);
+    }
+    return {};
+}
 
 void TimeSeries::addKeyValue(const string keyValue) {
     vector<float> vec;

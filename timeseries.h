@@ -9,6 +9,7 @@
 #include <iterator>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -25,8 +26,12 @@ public:
 
     void addKeyValue(const string keyValue, const vector<float> values);
 
-    const vector<string> getKeyValues ();
+    const vector<float> &getValuesFromKey(const string &keyValue) const;
+
+    const vector<std::string> &getKeyValues() const;
+
 private:
+
     map<string, vector<float>> table;
 
     vector<string> keyValues;
