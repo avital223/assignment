@@ -36,7 +36,7 @@ public:
 
 private :
     const correlatedFeatures
-    getCorrelationFeatures(const string &first, const string &second, float *x, float *y, int size,
+    getCorrelationFeatures(const string &first, const string &second,const float *x, const float *y, int size,
                            const float pearson) const;
 };
 

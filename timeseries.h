@@ -15,7 +15,7 @@ using namespace std;
 
 class SplitString {
 public:
-    static vector<string> splitString(const string &myText, const char &ch);
+    static const vector<std::string>  &splitString(const string &myText, const char &ch);
 };
 
 class TimeSeries {

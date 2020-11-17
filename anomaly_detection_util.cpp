@@ -7,7 +7,7 @@
 #include <math.h>
 #include "anomaly_detection_util.h"
 
-float avg(float *x, int size) {
+float avg(const float *x, const int size) {
     float sum = 0;
     for (int i = 0; i < size; i++) {
         sum += *(x + i);
@@ -16,7 +16,7 @@ float avg(float *x, int size) {
 }
 
 // returns the variance of X and Y
-float var(float *x, int size) {
+float var(const float *x, const int size) {
     float x2[size];
     for (int i = 0; i < size; i++) {
         *(x2 + i) = pow(*(x + i), 2);
@@ -26,7 +26,7 @@ float var(float *x, int size) {
 }
 
 // returns the covariance of X and Y
-float cov(float *x, float *y, int size) {
+float cov(const float *x, const float *y, const int size) {
     float avX = avg(x, size), avY = avg(y, size);
     float arr[size];
     for (int i = 0; i < size; i++) {
@@ -38,7 +38,7 @@ float cov(float *x, float *y, int size) {
 
 
 // returns the Pearson correlation coefficient of X and Y
-float pearson(float *x, float *y, int size) {
+float pearson(const float *x, const float *y, const int size) {
     return cov(x, y, size) / (sqrt(var(x, size)) * sqrt(var(y, size)));
 }
 
@@ -65,6 +65,8 @@ float dev(Point p, Point **points, int size) {
 // returns the deviation between point p and the line
 float dev(Point p, Line l) {
     float x = p.x, y = p.y;
+    cout << x << "," << y << endl;
+    cout << fabs(y - (l.a * x + l.b))<< endl;
     return fabs(y - (l.a * x + l.b));
 }
 

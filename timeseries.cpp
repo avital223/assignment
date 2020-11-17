@@ -1,15 +1,16 @@
+#include <iostream>
 #include "timeseries.h"
 
-vector<string> SplitString::splitString(const string &myText, const char &ch) {
+const vector<string> &SplitString::splitString(const string &myText, const char &ch) {
     vector<string> splitStr;
     size_t current, previous = 0;
     current = myText.find(ch);
     while (current != std::string::npos) {
-        splitStr.push_back(myText.substr(previous, current - previous));
+        splitStr.push_back(move(myText.substr(previous, current - previous)));
         previous = current + 1;
         current = myText.find(',', previous);
     }
-    splitStr.push_back(myText.substr(previous, current - previous));
+    splitStr.push_back(move(myText.substr(previous, current - previous)));
     return splitStr;
 }
 
@@ -33,7 +34,7 @@ void TimeSeries::getTableFromFile(const char *CSVfileName) {
 }
 
 vector<string> TimeSeries::setKeyValues(const string &myText) {
-    this->keyValues = SplitString::splitString(myText, ',');
+    this->keyValues = move(SplitString::splitString(myText, ','));
     vector<string>::iterator it;
     for (it = keyValues.begin(); it != keyValues.end(); it++) {
         table.insert(pair<string, vector<float>>(*it, vector<float>()));

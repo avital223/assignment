@@ -2,18 +2,21 @@
 #ifndef ANOMALYDETECTORUTIL_H_
 #define ANOMALYDETECTORUTIL_H_
 
+#include <iostream>
 
-float avg(float *x, int size);
+using namespace std;
+
+float avg(const float *x, const int size);
 
 // returns the variance of X and Y
-float var(float *x, int size);
+float var(const float *x, const int size);
 
 // returns the covariance of X and Y
-float cov(float *x, float *y, int size);
+float cov(const float *x, const float *y, const int size);
 
 
 // returns the Pearson correlation coefficient of X and Y
-float pearson(float *x, float *y, int size);
+float pearson(const float *x, const float *y, const int size);
 
 class Line {
 public:
