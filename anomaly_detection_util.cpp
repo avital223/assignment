@@ -65,8 +65,6 @@ float dev(Point p, Point **points, int size) {
 // returns the deviation between point p and the line
 float dev(Point p, Line l) {
     float x = p.x, y = p.y;
-    cout << x << "," << y << endl;
-    cout << fabs(y - (l.a * x + l.b))<< endl;
     return fabs(y - (l.a * x + l.b));
 }
 

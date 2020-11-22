@@ -1,4 +1,3 @@
-
 #include "SimpleAnomalyDetector.h"
 
 SimpleAnomalyDetector::SimpleAnomalyDetector() {
@@ -11,8 +10,7 @@ SimpleAnomalyDetector::~SimpleAnomalyDetector() {
 
 
 void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts) {
-    // TODO Auto-generated destructor stubconst
-    const vector<string> &keyValues = ts.getKeyValues();
+    const auto keyValues = ts.getKeyValues();
     float pears, maxPears;
     unsigned int first = 0, second = 1, maxSecond;
     for (auto itKeys = keyValues.begin(); itKeys != keyValues.end(); itKeys++) {
@@ -37,7 +35,23 @@ void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts) {
 }
 
 vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries &ts) {
-    // TODO Auto-generated destructor stub
+    for_each(this->cf.begin(), this->cf.end(), [ts, this](correlatedFeatures corFeatures) {
+        unsigned int timeStep = 1;
+        auto vecA = ts.getValuesFromKey(corFeatures.feature1);
+        auto vecB = ts.getValuesFromKey(corFeatures.feature2);
+        vector<float>::const_iterator iterator = vecB.begin();
+        for_each(vecA.begin(), vecA.end(), [&iterator, corFeatures, this, &timeStep](auto &firstVal) {
+            Point point = Point(firstVal, *iterator);
+            float devP = dev(point, corFeatures.lin_reg);
+            if (abs(devP) > corFeatures.threshold) {
+                anReport.push_back(AnomalyReport{corFeatures.feature1 + "-" + corFeatures.feature2,
+                                                 timeStep});
+            }
+            iterator++;
+            timeStep++;
+        });
+    });
+    return anReport;
 }
 
 const correlatedFeatures

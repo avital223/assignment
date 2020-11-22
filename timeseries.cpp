@@ -1,7 +1,7 @@
 #include <iostream>
 #include "timeseries.h"
 
-const vector<string> &SplitString::splitString(const string &myText, const char &ch) {
+vector<string> SplitString::splitString(const string &myText, const char &ch) {
     vector<string> splitStr;
     size_t current, previous = 0;
     current = myText.find(ch);
@@ -33,13 +33,11 @@ void TimeSeries::getTableFromFile(const char *CSVfileName) {
     MyReadFile.close();
 }
 
-vector<string> TimeSeries::setKeyValues(const string &myText) {
-    this->keyValues = move(SplitString::splitString(myText, ','));
-    vector<string>::iterator it;
-    for (it = keyValues.begin(); it != keyValues.end(); it++) {
-        table.insert(pair<string, vector<float>>(*it, vector<float>()));
-    }
-    return keyValues;
+void TimeSeries::setKeyValues(const string &myText) {
+    this->keyValues = SplitString::splitString(myText, ',');
+    for_each(keyValues.begin(), keyValues.end(), [this](const string &key) {
+        table.insert(pair<string, vector<float>>(key, vector<float>()));
+    });
 }
 
 void TimeSeries::setValuesInTable(const string &myText) {
@@ -56,11 +54,10 @@ const vector<string> &TimeSeries::getKeyValues() const { return keyValues; }
 
 const vector<float> &TimeSeries::getValuesFromKey(const string &keyValue) const {
     std::vector<string>::const_iterator iter;
-    for (iter = this->keyValues.begin(); iter != this->keyValues.end(); iter++) {
-        if (!keyValue.compare(*iter))
-            return this->table.at(keyValue);
-    }
-    return {};
+    iter = find(keyValues.begin(), keyValues.end(), keyValue);
+    if (iter == keyValues.end())
+        return {};
+    return this->table.at(keyValue);
 }
 
 void TimeSeries::addKeyValue(const string keyValue) {
