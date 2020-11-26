@@ -1,75 +1,74 @@
 #include "SimpleAnomalyDetector.h"
 
-SimpleAnomalyDetector::SimpleAnomalyDetector() {
-    // TODO Auto-generated constructor stub
-}
-
-SimpleAnomalyDetector::~SimpleAnomalyDetector() {
-    // TODO Auto-generated destructor stub
-}
-
-
+//Using TimeSeries, this function finds which features have strong correlation, and saves them.
 void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts) {
-    const auto keyValues = ts.getKeyValues();
-    float pears, maxPears;
+    const auto &features = ts.getFeatures();
+    float pears, maxPears = 0.0;
     unsigned int first = 0, second = 1, maxSecond;
-    for (auto itKeys = keyValues.begin(); itKeys != keyValues.end(); itKeys++) {
-        for (auto itComp = itKeys + 1; itComp != keyValues.end(); itComp++) {
-            pears = pearson(ts.getValuesFromKey(*itKeys).data(),
-                            ts.getValuesFromKey(*itComp).data(), ts.getValuesFromKey(*itKeys).size());
-            if (abs(maxPears) < abs(pears)) {
+    //to each feature check the feature with the strongest correlation.
+    for (auto itFeat = features.begin(); itFeat != features.end(); itFeat++) {
+        for (auto itComp = itFeat + 1; itComp != features.end(); itComp++) {
+            pears = pearson(ts.getDataFromFeature(*itFeat).data(),
+                            ts.getDataFromFeature(*itComp).data(), ts.getDataFromFeature(*itFeat).size());
+            if (fabs(maxPears) < fabs(pears)) {
+                //saves the better correlated feature
                 maxPears = pears;
                 maxSecond = second;
             }
             second++;
         }
-        if (maxPears >= 0.9 || maxPears <= -0.9) {
-            cf.push_back(getCorrelationFeatures(*itKeys, keyValues.at(maxSecond),
-                                                ts.getValuesFromKey(*itKeys).data(),
-                                                ts.getValuesFromKey(keyValues.at(maxSecond)).data(),
-                                                ts.getValuesFromKey(*itKeys).size(), maxPears));
+        //we need to save only strong correlated features.
+        if (fabs(maxPears) >= 0.9) {
+            cf.push_back(getCorrelationFeatures(*itFeat, features.at(maxSecond),
+                                                ts.getDataFromFeature(*itFeat).data(),
+                                                ts.getDataFromFeature(features.at(maxSecond)).data(),
+                                                ts.getDataFromFeature(*itFeat).size(), maxPears));
         }
         second = 1 + ++first;
-        maxPears = 0;
+        maxPears = 0.0;
     }
 }
 
+//According to what features the SimpleAnormalityDetector knows are correlated,
+//the function return a vector of anomaly features correlation.
 vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries &ts) {
-    for_each(this->cf.begin(), this->cf.end(), [ts, this](correlatedFeatures corFeatures) {
+    vector<AnomalyReport> anReport;
+    for_each(this->cf.begin(), this->cf.end(), [&ts, &anReport](const correlatedFeatures &corFeatures) {
         unsigned int timeStep = 1;
-        auto vecA = ts.getValuesFromKey(corFeatures.feature1);
-        auto vecB = ts.getValuesFromKey(corFeatures.feature2);
-        vector<float>::const_iterator iterator = vecB.begin();
-        for_each(vecA.begin(), vecA.end(), [&iterator, corFeatures, this, &timeStep](auto &firstVal) {
-            Point point = Point(firstVal, *iterator);
+        const auto &vecFeature1 = ts.getDataFromFeature(corFeatures.feature1);
+        const auto &vecFeature2 = ts.getDataFromFeature(corFeatures.feature2);
+        auto iterator2 = vecFeature2.begin(), iterator1 = vecFeature1.begin();
+        for (; iterator1 != vecFeature1.end() && iterator2 != vecFeature2.end(); iterator1++) {
+            Point point = Point(*iterator1, *iterator2);
             float devP = dev(point, corFeatures.lin_reg);
-            if (abs(devP) > corFeatures.threshold) {
-                anReport.push_back(AnomalyReport{corFeatures.feature1 + "-" + corFeatures.feature2,
-                                                 timeStep});
+            if (devP > corFeatures.threshold) {
+                anReport.emplace_back(corFeatures.feature1 + "-" + corFeatures.feature2, timeStep);
             }
-            iterator++;
             timeStep++;
-        });
+            iterator2++;
+        }
     });
     return anReport;
 }
 
-const correlatedFeatures
+//This Function calculates all the information from the 2 features and returns
+//a correlatedFeatures that saves all this information.
+correlatedFeatures
 SimpleAnomalyDetector::getCorrelationFeatures(const string &first, const string &second, const float *x, const float *y,
                                               int size,
-                                              const float pearson) const {
+                                              const float pearson) {
     Point *points[size];
     for (int i = 0; i < size; i++) {
         points[i] = new Point(x[i], y[i]);
     }
     Line linear = linear_reg(points, size);
-    float maxDis = 0, resault;
+    float maxDis = 0.0, result;
     for (int i = 0; i < size; i++) {
-        resault = dev(*points[i], linear);
-        maxDis = maxDis < resault ? resault : maxDis;
+        result = dev(*points[i], linear);
+        if (maxDis < result)
+            maxDis = result;
+
         delete points[i];
     }
-    return correlatedFeatures{first, second, pearson, linear, static_cast<float>(maxDis * 1.1)};
+    return correlatedFeatures{first, second, pearson, linear, maxDis * 1.1f};
 }
-
-

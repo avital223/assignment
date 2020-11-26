@@ -1,71 +1,92 @@
 #include <iostream>
 #include "timeseries.h"
 
-vector<string> SplitString::splitString(const string &myText, const char &ch) {
-    vector<string> splitStr;
-    size_t current, previous = 0;
+//Adds to the vector a list of sub-strings in myText, separated by the delimiter ch.
+void SplitString::splitString(const string &myText, const char &ch, vector<string> &splitStr) {
+    unsigned long current, previous = 0;
     current = myText.find(ch);
-    while (current != std::string::npos) {
+    //go until you no longer find the char ch in the string myText.
+    while (current != -1) {
         splitStr.push_back(move(myText.substr(previous, current - previous)));
         previous = current + 1;
-        current = myText.find(',', previous);
+        //search from the last place we saw the char.
+        current = myText.find(ch, previous);
     }
     splitStr.push_back(move(myText.substr(previous, current - previous)));
-    return splitStr;
 }
 
+//Constructor of TimeSeries from CSV file.
 TimeSeries::TimeSeries(const char *CSVfileName) {
     getTableFromFile(CSVfileName);
 }
 
+//Creates a table that connects each feature to it's data according to the name of the csv file.
 void TimeSeries::getTableFromFile(const char *CSVfileName) {
     string myText, strTable;
-    ifstream MyReadFile(CSVfileName);
-    if (!MyReadFile.is_open()) {
+    ifstream myReadFile(CSVfileName);
+    //if we weren't able to open the file
+    if (!myReadFile.is_open()) {
         throw "Couldn't open the file :" + *CSVfileName;
     }
-    if (getline(MyReadFile, myText)) {
-        setKeyValues(myText);
+    //the first line contains our features
+    if (getline(myReadFile, myText)) {
+        setFeatures(myText);
     }
-    while (getline(MyReadFile, myText)) {
-        setValuesInTable(myText);
+    //each new line contains data to each of the features.
+    while (getline(myReadFile, myText)) {
+        setDataInTable(myText);
     }
-    MyReadFile.close();
+    myReadFile.close();
 }
 
-void TimeSeries::setKeyValues(const string &myText) {
-    this->keyValues = SplitString::splitString(myText, ',');
-    for_each(keyValues.begin(), keyValues.end(), [this](const string &key) {
-        table.insert(pair<string, vector<float>>(key, vector<float>()));
+//Sets new features according the the string myText.
+void TimeSeries::setFeatures(const string &myText) {
+    SplitString::splitString(myText, ',', this->features);
+    for_each(features.begin(), features.end(), [this](const string &feature) {
+        addFeature(feature);
     });
 }
 
-void TimeSeries::setValuesInTable(const string &myText) {
-    vector<string> values = SplitString::splitString(myText, ',');
+//sets new line of data and adds each data to the right features.
+void TimeSeries::setDataInTable(const string &myText) {
+    vector<string> values;
+    SplitString::splitString(myText, ',', values);
     vector<string>::iterator itKeys;
     vector<string>::iterator itVal = values.begin();
-    for (itKeys = keyValues.begin(); itKeys != keyValues.end() && itVal != values.end(); itKeys++) {
-        table[*itKeys].push_back(stof(*itVal));
-        itVal++;
+    //we put the data in the order of it's appearance.
+    for (itKeys = features.begin(); itKeys != features.end(); itKeys++) {
+        if (itVal != values.end()) {
+            table[*itKeys].push_back(stof(*itVal));
+            itVal++;
+        } else
+            //in case of missing data - it's better to add 0 so there wouldn't be mismatch of the table.
+            table[*itKeys].push_back(0);
+
     }
 }
 
-const vector<string> &TimeSeries::getKeyValues() const { return keyValues; }
+//Returns a vector of all the features per order (of appearance).
+const vector<string> &TimeSeries::getFeatures() const { return features; }
 
-const vector<float> &TimeSeries::getValuesFromKey(const string &keyValue) const {
+//*Returns all th data associated to the feature send (if exists).
+//if the feature doesn't exist - it returns an empty vector.
+const vector<float> &TimeSeries::getDataFromFeature(const string &feature) const {
     std::vector<string>::const_iterator iter;
-    iter = find(keyValues.begin(), keyValues.end(), keyValue);
-    if (iter == keyValues.end())
+    iter = find(features.begin(), features.end(), feature);
+    if (iter == features.end())
         return {};
-    return this->table.at(keyValue);
+    return this->table.at(feature);
 }
 
-void TimeSeries::addKeyValue(const string keyValue) {
+//Adds the feature with empty data.
+void TimeSeries::addFeature(const string &feature) {
     vector<float> vec;
-    vec.resize(table[*keyValues.begin()].size(), 0);
-    table.insert(pair<string, vector<float>>(keyValue, vec));
+    //if the table is empty - it'll insert an empty vector
+    vec.resize(table[*features.begin()].size(), 0);
+    table.emplace(feature, vec);
 }
 
-void TimeSeries::addKeyValue(const string keyValue, const vector<float> values) {
-    table.insert(pair<string, vector<float>>(keyValue, values));
+//Adds the feature with the data associated with it.
+void TimeSeries::addFeature(const string &feature, vector<float> &data) {
+    table.emplace(feature, move(data));
 }

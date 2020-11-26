@@ -21,13 +21,14 @@ float var(const float *x, const int size) {
     for (int i = 0; i < size; i++) {
         *(x2 + i) = pow(*(x + i), 2);
     }
-    float var = avg(x2, size) - pow(avg(x, size), 2);
+    float var = avg(x2, size) - (float) pow(avg(x, size), 2);
     return var;
 }
 
 // returns the covariance of X and Y
 float cov(const float *x, const float *y, const int size) {
-    float avX = avg(x, size), avY = avg(y, size);
+    float avX = avg(x, size);
+    float avY = avg(y, size);
     float arr[size];
     for (int i = 0; i < size; i++) {
         *(arr + i) = (*(x + i) - avX) * (*(y + i) - avY);
@@ -39,7 +40,7 @@ float cov(const float *x, const float *y, const int size) {
 
 // returns the Pearson correlation coefficient of X and Y
 float pearson(const float *x, const float *y, const int size) {
-    return cov(x, y, size) / (sqrt(var(x, size)) * sqrt(var(y, size)));
+    return cov(x, y, size) / (sqrt(var(x, size) * var(y, size)));
 }
 
 // performs a linear regression and returns the line equation
@@ -52,7 +53,8 @@ Line linear_reg(Point **points, int size) {
     }
     float a = cov(x, y, size) / var(x, size);
     float b = avg(y, size) - a * avg(x, size);
-    delete[]x, y;
+    delete[]x;
+    delete[]y;
     return Line(a, b);
 }
 
@@ -67,6 +69,7 @@ float dev(Point p, Line l) {
     float x = p.x, y = p.y;
     return fabs(y - (l.a * x + l.b));
 }
+
 
 
 
