@@ -1,3 +1,8 @@
+/*
+ * timeseries.cpp
+ *
+ * Author: Avital Livshitz 318850575
+ */
 #include <iostream>
 #include "timeseries.h"
 
@@ -68,13 +73,13 @@ void TimeSeries::setDataInTable(const string &myText) {
 //Returns a vector of all the features per order (of appearance).
 const vector<string> &TimeSeries::getFeatures() const { return features; }
 
-//*Returns all th data associated to the feature send (if exists).
+//Returns all th data associated to the feature send (if exists).
 //if the feature doesn't exist - it returns an empty vector.
 const vector<float> &TimeSeries::getDataFromFeature(const string &feature) const {
     std::vector<string>::const_iterator iter;
     iter = find(features.begin(), features.end(), feature);
     if (iter == features.end())
-        return {};
+        return vector<float>();
     return this->table.at(feature);
 }
 

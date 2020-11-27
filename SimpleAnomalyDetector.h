@@ -1,3 +1,9 @@
+/*
+ * SimpleAnomaityDetector.h
+ *
+ * Author: Avital Livshitz 318850575
+ */
+
 #ifndef SIMPLEANOMALYDETECTOR_H_
 #define SIMPLEANOMALYDETECTOR_H_
 

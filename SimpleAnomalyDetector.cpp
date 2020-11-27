@@ -1,3 +1,8 @@
+/*
+ * SimpleAnomaityDetector.cpp
+ *
+ * Author: Avital Livshitz 318850575
+ */
 #include "SimpleAnomalyDetector.h"
 
 //Using TimeSeries, this function finds which features have strong correlation, and saves them.
@@ -23,7 +28,8 @@ void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts) {
                                                 ts.getDataFromFeature(*itFeat).data(),
                                                 ts.getDataFromFeature(features.at(maxSecond)).data(),
                                                 ts.getDataFromFeature(*itFeat).size(), maxPears));
-        }
+
+            }
         second = 1 + ++first;
         maxPears = 0.0;
     }
@@ -62,7 +68,7 @@ SimpleAnomalyDetector::getCorrelationFeatures(const string &first, const string 
         points[i] = new Point(x[i], y[i]);
     }
     Line linear = linear_reg(points, size);
-    float maxDis = 0.0, result;
+    float maxDis = 0.0, result = 0.0;
     for (int i = 0; i < size; i++) {
         result = dev(*points[i], linear);
         if (maxDis < result)

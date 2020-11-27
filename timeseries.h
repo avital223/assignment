@@ -1,4 +1,8 @@
-
+/*
+ * timeseries.h
+ *
+ * Author: Avital Livshitz 318850575
+ */
 
 #ifndef TIMESERIES_H_
 #define TIMESERIES_H_
@@ -22,7 +26,7 @@ public:
      * @param ch the delimiter we want to split myText by.
      * @param splitStr the vector we put the sub-strings in.
      */
-    static void splitString(const string &myText, const char &ch, vector<string>& splitStr);
+    static void splitString(const string &myText, const char &ch, vector<string> &splitStr);
 };
 
 class TimeSeries {
@@ -34,11 +38,11 @@ public:
      */
     TimeSeries(const char *CSVfileName);
 
-     /**
-      * Returns a vector of all the features per order (of appearance).
-      *
-      * @return a vector of the features.
-      */
+    /**
+     * Returns a vector of all the features per order (of appearance).
+     *
+     * @return a vector of the features.
+     */
     const vector<string> &getFeatures() const;
 
     /**
@@ -48,7 +52,7 @@ public:
      * @param feature the string name of the feature.
      * @return a vector of the data associated with the feature
      */
-    const vector<float> &getDataFromFeature(const string &feature)const;
+    const vector<float> &getDataFromFeature(const string &feature) const;
 
     /**
      * Adds the feature with the data associated with it.
