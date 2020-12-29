@@ -9,6 +9,7 @@
 
 #include "anomaly_detection_util.h"
 #include "AnomalyDetector.h"
+#include "minCircle.h"
 #include <vector>
 #include <algorithm>
 #include <cstring>
@@ -24,20 +25,58 @@ struct correlatedFeatures {
     float corrlation;
     Line lin_reg;
     float threshold;
+    Circle circle;
 };
 
+struct maxCorrelation {
+    int first;
+    int second;
+    float pearson;
+};
 
 class SimpleAnomalyDetector : public TimeSeriesAnomalyDetector {
+protected:
     /**
      * All the important correlations between the features.
      */
     vector<correlatedFeatures> cf;
+
+    /**
+     * the minimum correlation needed to create a correlation line.
+     */
+    float minPears = 0.9;
+
+    /**
+     * checks if the point is out of the normal of the correlated feature.
+     * @param point the point we check
+     * @param correlatedFeatures the correlated features we check on
+     * @param timeStep the time step of the point
+     * @return an anomaly report - or the empty report we created
+     */
+    virtual
+    AnomalyReport
+    checkAnomalityForPoint(const Point &point, const correlatedFeatures &correlatedFeatures,
+                           unsigned int timeStep);
+
+    /**
+     * check's if the correlation
+     * @param ts
+     * @param itFeat
+     */
+    virtual void addCorrelationIfNeeded(const TimeSeries &ts, maxCorrelation &maxCorrelation);
+
+/**
+ * an empty Anomality report for good points.
+ */
+    AnomalyReport empty = {"nan", -1};
 public:
+
     /**
      * Constructor of SimpleAnormalityDetector.
      */
     SimpleAnomalyDetector() = default;
 
+    void setMinPears(float min);
     /**
      * Destructor of SimpleAnormalityDetector.
      */
@@ -50,6 +89,7 @@ public:
      * @param ts the TimeSeries
      */
     virtual void learnNormal(const TimeSeries &ts);
+
 
     /**
      * According to what features the SimpleAnormalityDetector knows are correlated,
@@ -68,6 +108,7 @@ public:
         return cf;
     }
 
+
 private :
 
     /**
@@ -83,8 +124,7 @@ private :
      * @return the correlated feature information
      */
     static correlatedFeatures
-    getCorrelationFeatures(const string &first, const string &second, const float *x, const float *y, int size,
-                           const float pearson);
+    getCorrelationFeatures(maxCorrelation &maxCorr, const TimeSeries &ts);
 };
 
 #endif /* SIMPLEANOMALYDETECTOR_H_ */

@@ -45,17 +45,15 @@ float pearson(const float *x, const float *y, const int size) {
 
 // performs a linear regression and returns the line equation
 Line linear_reg(Point **points, int size) {
-    float *x = new float[size];
-    float *y = new float[size];
+    float x[size];
+    float y[size];
     for (int i = 0; i < size; i++) {
-        *(x + i) = (*(points + i))->x;
-        *(y + i) = (*(points + i))->y;
+        x[i] = points[i]->x;
+        y[i] = points[i]->y;
     }
     float a = cov(x, y, size) / var(x, size);
     float b = avg(y, size) - a * avg(x, size);
-    delete[]x;
-    delete[]y;
-    return Line(a, b);
+    return {a, b};
 }
 
 // returns the deviation between point p and the line equation of the points

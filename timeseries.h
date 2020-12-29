@@ -69,6 +69,7 @@ public:
      */
     void addFeature(const string &feature);
 
+    const string &getFeatureNameFromPos(int pos) const;
 
 private:
 

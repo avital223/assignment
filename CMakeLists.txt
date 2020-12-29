@@ -13,4 +13,8 @@ add_executable(assignment
         SimpleAnomalyDetector.h
         timeseries.cpp
         timeseries.h
-        MainTrain.cpp)
+        MainTrain.cpp
+        HybridAnomalyDetector.h
+        HybridAnomalyDetector.cpp
+        minCircle.cpp
+        minCircle.h)

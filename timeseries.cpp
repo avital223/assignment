@@ -95,3 +95,7 @@ void TimeSeries::addFeature(const string &feature) {
 void TimeSeries::addFeature(const string &feature, vector<float> &data) {
     table.emplace(feature, move(data));
 }
+
+const string &TimeSeries::getFeatureNameFromPos(int pos) const{
+    return features.at(pos);
+}
