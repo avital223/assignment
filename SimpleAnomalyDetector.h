@@ -28,6 +28,9 @@ struct correlatedFeatures {
     Circle circle;
 };
 
+/**
+ * All the information about the max correlation between two features.
+ */
 struct maxCorrelation {
     int first;
     int second;
@@ -60,8 +63,8 @@ protected:
 
     /**
      * check's if the correlation
-     * @param ts
-     * @param itFeat
+     * @param ts the Time Series
+     * @param maxCorrelation the info about the max correlation
      */
     virtual void addCorrelationIfNeeded(const TimeSeries &ts, maxCorrelation &maxCorrelation);
 
@@ -71,6 +74,11 @@ protected:
     AnomalyReport empty = {"nan", -1};
 public:
 
+    /**
+     *  returns the Minimum threshold correlation.
+     * @return minimum threshold correlation.
+     */
+    float getThresholdCorrelation(){return this->minPears;}
     /**
      * Constructor of SimpleAnormalityDetector.
      */

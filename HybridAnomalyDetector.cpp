@@ -5,11 +5,12 @@
  */
 #include "HybridAnomalyDetector.h"
 
+// Virtual method - checks if the point is out of the normal of the correlated feature.
 void HybridAnomalyDetector::addCorrelationIfNeeded(const TimeSeries &ts, maxCorrelation &maxCorrelation) {
     SimpleAnomalyDetector::addCorrelationIfNeeded(ts, maxCorrelation);
     float pears = fabs(maxCorrelation.pearson);
     //we need to save only strong correlated features.
-    if (pears >= 0.5 && pears <= 0.9) {
+    if (pears >= 0.5 && pears <= minPears) {
         //create array of points to find the min circle
         const auto &secFeat = ts.getFeatureNameFromPos(maxCorrelation.second);
         const auto &firstFeat = ts.getFeatureNameFromPos(maxCorrelation.first);
@@ -30,6 +31,7 @@ void HybridAnomalyDetector::addCorrelationIfNeeded(const TimeSeries &ts, maxCorr
     }
 }
 
+// Virtual method - check's if the correlation
 AnomalyReport
 HybridAnomalyDetector::checkAnomalityForPoint(const Point &point, const correlatedFeatures &correlatedFeatures,
                                               unsigned int timeStep) {
