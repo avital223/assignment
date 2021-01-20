@@ -1,5 +1,5 @@
 /*
- * CLI.c
+ * CLI.cpp
  *
  * Author: Avital Livshitz 318850575
  */
@@ -41,7 +41,6 @@ void CLI::start() {
         } catch (exception &e) {
         }
     }
-   // cout<<"lala"<<endl;
 }
 
 //Destructor of the CLI

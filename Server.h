@@ -1,8 +1,7 @@
 /*
  * Server.h
  *
- *  Created on: Dec 13, 2020
- *      Author: Eli
+ * Author: Avital Livshitz 318850575
  */
 
 #ifndef SERVER_H_
@@ -20,6 +19,7 @@ using namespace std;
 // edit your ClientHandler interface here:
 class ClientHandler {
 public:
+    //handle each cilent
     virtual void handle(int clientID) = 0;
 };
 
@@ -27,12 +27,11 @@ public:
 // edit your AnomalyDetectionHandler class here
 class AnomalyDetectionHandler : public ClientHandler {
 public:
+    //handle the client of the detector
     virtual void handle(int clientID) {
         SocketIO dio = SocketIO(clientID);
-        //StandardIO dio = StandardIO();
         CLI cli = CLI(&dio);
         cli.start();
-        close(clientID);
     }
 };
 
@@ -41,18 +40,36 @@ public:
 class Server {
     thread *t{}; // the thread to run the start() method in
 private:
+    //all the needed info for the socket
     string ip;
     int port, socket_fd, client_fd;
 
+    /**
+     * the function we cann to open the thread of the server
+     */
     void threadFunc(ClientHandler &ch);
 
 public:
+    /**
+     * Constructor of a new server
+     * @param port the port of the socket
+     */
     Server(int port) throw(const char *);
 
+    /**
+     * destructor of the server
+     */
     virtual ~Server();
 
+    /**
+     * start the server
+     * @param ch the client handler
+     */
     void start(ClientHandler &ch) throw(const char *);
 
+    /**
+     * stop the server.
+     */
     void stop();
 };
 
