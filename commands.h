@@ -13,6 +13,9 @@
 #include <fstream>
 #include <utility>
 #include <vector>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/socket.h>
 #include "HybridAnomalyDetector.h"
 
 using namespace std;
@@ -50,6 +53,50 @@ class StandardIO : public DefaultIO {
 
     void read(float *f) override {
         cin >> *f;
+    }
+};
+
+class SocketIO : public DefaultIO {
+private:
+    int client_fd;
+public:
+    SocketIO(int id) {
+        client_fd = id;
+    }
+
+    string read() override {
+        char buffer[255];
+        if (recv(client_fd, buffer, 255, 0) < 0) {
+            throw "error reading";
+        }
+        return buffer;
+    }
+
+    void write(string text) override {
+        ssize_t s = send(client_fd, text.c_str(), text.length(), 0);
+        if (s < 0)
+            throw "error writing";
+    }
+
+    void write(float f) override {
+        //round the number till 3 nums after point.
+        int floorNum = floor(f * 1000);
+        f = floorNum / 1000;
+        string text = to_string(f);
+        if (send(client_fd, text.c_str(), text.length(), 0) < 0)
+            throw "error writing";
+    }
+
+    void read(float *f) override {
+        char buffer[255];
+        if (recv(client_fd, buffer, 255, 0) < 0) {
+            throw "error reading";
+        }
+        try {
+            *f = stof(buffer);
+        } catch (exception) {
+            throw "not a float";
+        }
     }
 };
 
@@ -359,8 +406,7 @@ public:
         dio->write("True Positive Rate: ");
         dio->write(resaultTPR / 1000);
         dio->write("\nFalse Positive Rate: ");
-        dio->write(resaultFPR / 1000);
-        dio->write("\n");
+        dio->write(to_string(resaultFPR / 1000)+"\n");
     }
 
 };

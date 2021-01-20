@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(assignment)
 
-set(CMAKE_CXX_STANDARD 14)
+
+set(CMAKE_CXX_FLAGS -pthread)
 
 include_directories(.)
 
@@ -21,4 +22,6 @@ add_executable(assignment
         CLI.cpp
         CLI.h
         commands.h
+        Server.cpp
+        Server.h
         )

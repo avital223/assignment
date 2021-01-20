@@ -9,7 +9,7 @@
 CLI::CLI(DefaultIO *dio) {
     this->dio = dio;
     // Initilaze all the commands in the CLI
-    AnomalyCommandInfo* commandInfo = new AnomalyCommandInfo(HybridAnomalyDetector());
+    auto *commandInfo = new AnomalyCommandInfo(HybridAnomalyDetector());
     comands.push_back(new UploadCommand(dio, commandInfo));
     comands.push_back(new AlgoSettingsCommand(dio, commandInfo));
     comands.push_back(new DetectAnomaliesComand(dio, commandInfo));
@@ -21,8 +21,9 @@ CLI::CLI(DefaultIO *dio) {
 //Start the session with the Client
 void CLI::start() {
     string line;
+    int command = -1;
     // do session untill the exit command
-    while (line.empty() || line != "6") {
+    while (line.empty() || command != 6) {
         int index = 1;
         dio->write("Welcome to the Anomaly Detection Server.\nPlease choose an option:\n");
         //print all the commands in the menu
@@ -35,11 +36,12 @@ void CLI::start() {
         line = dio->read();
         //if the number was incorrect.
         try {
-            int command = stoi(line);
+            command = stoi(line);
             comands.at(command - 1)->execute();
-        } catch (exception) {
+        } catch (exception &e) {
         }
     }
+   // cout<<"lala"<<endl;
 }
 
 //Destructor of the CLI
